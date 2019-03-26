@@ -11,9 +11,9 @@
 - SAVE: ctrl + x, y, enter
 - root# service ssh restart
 - root# exit
-- ssh deploy@server
+- ssh deploy@ip_server
 
-### 2. Setup Languaje
+### 2. Setup Languaje (optional)
 
 - deploy# export LANGUAGE=en_US.UTF-8
 - deploy# export LANG=en_US.UTF-8
@@ -36,12 +36,7 @@
 - deploy# sudo apt-get install redis-server
 - deploy# sudo systemctl enable redis-server.service
 
-### 4. Node.js
-
-- deploy# curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-- deploy# sudo apt-get install -y nodejs
-
-### 5. Install Ruby with RVM & Rails
+### 4. Install Ruby with RVM & Rails
 
 - deploy# sudo apt-get install libgdbm-dev libncurses5-dev automake libtool bison libffi-dev
 - deploy# gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
@@ -71,8 +66,6 @@
 - deploy# sudo add-apt-repository ppa:nginx/stable
 - deploy# sudo apt-get update
 - deploy# sudo apt-get -y install nginx
-- deploy# sudo rm /etc/nginx/sites-available/default
-- deploy# systemctl enable nginx.service
 - deploy# wget https://raw.githubusercontent.com/puma/puma/master/tools/jungle/upstart/puma-manager.conf
 - deploy# wget https://raw.githubusercontent.com/puma/puma/master/tools/jungle/upstart/puma.conf
 - deploy# sudo nano puma.conf
@@ -90,7 +83,7 @@
 - deploy# sudo apt-get update
 - deploy# sudo apt-get install certbot
 
-### Setup Monit
+### 9. Setup Monit
 
 - deploy# sudo apt-get install monit
 - deploy# sudo vi /etc/monit/monitrc
@@ -103,4 +96,3 @@ allow admin:monit # require user 'admin' with password 'monit'
 allow @monit # allow users of group 'monit' to connect (rw)
 allow @users readonly # allow users of group 'users' to connect readonly
 
-- deploy#
