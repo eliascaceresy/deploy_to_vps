@@ -169,6 +169,9 @@ namespace :deploy do
     end
 
     before 'deploy:migrate', 'deploy:db:create'
+    # If you are using seed_migration gem
+    after 'deploy:migrate', 'seed:migrate'
+    
     after  :finishing,    :compile_assets
     after  :finishing,    :cleanup
 end
