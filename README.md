@@ -96,6 +96,7 @@ require 'capistrano/rails/db'
 require 'capistrano/nginx'
 require 'sshkit/sudo'
 require 'capistrano-db-tasks'
+# If you are using seed_migration gem
 require "capistrano/seed_migration_tasks"
 
 install_plugin Capistrano::SCM::Git
