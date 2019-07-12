@@ -110,17 +110,17 @@ Dir.glob("lib/capistrano/tasks/*.rake").each { |r| import r }
 - In config/deploy.rb
 
 ```ruby
-server '157.230.45.121', roles: [:web, :app, :db], primary: true
+server 'ip_server', roles: [:web, :app, :db], primary: true
 
-set :application, 'App'
-set :repo_url, 'git@github.com:eliascaceresy/App.git'
+set :application, 'app_name'
+set :repo_url, 'repo_git'
 set :user, 'deploy'
 set :puma_threads, [4,16]
 set :puma_workers, 0
 
 set :pty,             true
 set :use_sudo,        true
-set :stage,           :production
+
 set :deploy_via,      :remote_cache
 set :deploy_to,       "/home/#{fetch(:user)}/apps/#{fetch(:application)}"
 set :puma_bind,       "unix://#{shared_path}/tmp/sockets/#{fetch(:application)}-puma.sock"
@@ -133,7 +133,7 @@ set :puma_worker_timeout, nil
 set :puma_init_active_record, true  # Change to false when not using ActiveRecord
 set :rvm_ruby_version, '2.6.3'
 
-set :branch,        :deploy
+set :branch,        :branch_name
 
 append :rvm_map_bins, 'rails'
 
