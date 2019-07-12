@@ -96,7 +96,6 @@ require 'capistrano/rails/db'
 require 'capistrano/nginx'
 require 'sshkit/sudo'
 require 'capistrano-db-tasks'
-# If you are using seed_migration gem
 require "capistrano/seed_migration_tasks"
 
 install_plugin Capistrano::SCM::Git
@@ -169,9 +168,6 @@ namespace :deploy do
     end
 
     before 'deploy:migrate', 'deploy:db:create'
-    # If you are using seed_migration gem
-    after 'deploy:migrate', 'seed:migrate'
-    
     after  :finishing,    :compile_assets
     after  :finishing,    :cleanup
 end
@@ -195,7 +191,7 @@ set :db_ignore_data_tables, ["versions"]
 
 ```conf
 upstream puma {
-    server unix:///home/deploy/apps/App/shared/tmp/sockets/App-puma.sock;
+    server unix:///home/deploy/apps/app_name/shared/tmp/sockets/app_name-puma.sock;
 }
 
 server {
@@ -203,9 +199,9 @@ server {
     # si ya tienes un dominio colocarlo en la linea debajo, de lo contrario comentar
     server_name dominio.com;
 
-    root /home/deploy/apps/App/current/public;
-    access_log /home/deploy/apps/App/current/log/nginx.access.log;
-    error_log /home/deploy/apps/App/current/log/nginx.error.log info;
+    root /home/deploy/apps/app_name/current/public;
+    access_log /home/deploy/apps/app_name/current/log/nginx.access.log;
+    error_log /home/deploy/apps/app_name/current/log/nginx.error.log info;
 
     location ^~ /assets/ {
         gzip_static on;
@@ -238,7 +234,6 @@ server {
 - `sudo ufw allow OpenSSH`
 - `sudo ufw allow 'Nginx Full'`
 - `sudo ufw enable`
-
 
 ### 9. Puch changes
 
