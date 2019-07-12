@@ -41,6 +41,7 @@
 - `sudo -u postgres createuser user_name -s`
 - `sudo -u postgres psql`
 - postgres=# `\password user_name`
+- obs. If you do not allow yourself to install postgresql, do it with `sudo su`
 
 ### 4. Add ssh to authorized keys in VPS
 
@@ -96,6 +97,8 @@ require 'capistrano/rails/db'
 require 'capistrano/nginx'
 require 'sshkit/sudo'
 require 'capistrano-db-tasks'
+
+# If you are using seed_migration gem
 require "capistrano/seed_migration_tasks"
 
 install_plugin Capistrano::SCM::Git
@@ -107,10 +110,10 @@ Dir.glob("lib/capistrano/tasks/*.rake").each { |r| import r }
 - In config/deploy.rb
 
 ```ruby
-server 'ip_server', roles: [:web, :app, :db], primary: true
+server '157.230.45.121', roles: [:web, :app, :db], primary: true
 
-set :application, 'app_name'
-set :repo_url, 'git_repo'
+set :application, 'App'
+set :repo_url, 'git@github.com:eliascaceresy/App.git'
 set :user, 'deploy'
 set :puma_threads, [4,16]
 set :puma_workers, 0
@@ -146,6 +149,8 @@ namespace :puma do
         end
     end
     before :start, :make_dirs
+    after :make_dirs, 'nginx:restart'
+    before :restart, 'nginx:restart'
 end
 
 namespace :deploy do
@@ -168,6 +173,10 @@ namespace :deploy do
     end
 
     before 'deploy:migrate', 'deploy:db:create'
+    
+    # If you are using seed_migration gem
+    after 'deploy:migrate', 'seed:migrate'
+    
     after  :finishing,    :compile_assets
     after  :finishing,    :cleanup
 end
