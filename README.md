@@ -122,7 +122,7 @@ set :pty,             true
 set :use_sudo,        true
 
 set :deploy_via,      :remote_cache
-set :deploy_to,       "/home/#{fetch(:user)}/apps/#{fetch(:application)}"
+set :deploy_to,       "/home/#{fetch(:user)}/#{fetch(:application)}"
 set :puma_bind,       "unix://#{shared_path}/tmp/sockets/#{fetch(:application)}-puma.sock"
 set :puma_state,      "#{shared_path}/tmp/pids/puma.state"
 set :puma_pid,        "#{shared_path}/tmp/pids/puma.pid"
@@ -196,11 +196,11 @@ set :disallow_pushing, false
 set :db_ignore_data_tables, ["versions"]
 ```
 
-- Inside config folder, create a file nginx.conf and paste the following
+- In the server, inside /etc/nginx/site-avalidable/, create a file with name "app_name" or "domain_name" and paste the following
 
 ```conf
-upstream puma {
-    server unix:///home/deploy/apps/app_name/shared/tmp/sockets/app_name-puma.sock;
+upstream app_name_puma_environment {
+    server unix:///home/deploy/app_name/shared/tmp/sockets/app_name-puma.sock;
 }
 
 server {
@@ -208,28 +208,61 @@ server {
     # si ya tienes un dominio colocarlo en la linea debajo, de lo contrario comentar
     server_name dominio.com;
 
-    root /home/deploy/apps/app_name/current/public;
-    access_log /home/deploy/apps/app_name/current/log/nginx.access.log;
-    error_log /home/deploy/apps/app_name/current/log/nginx.error.log info;
+    root /home/deploy/app_name/current/public;
+    access_log /home/deploy/app_name/current/log/nginx.access.log;
+    error_log /home/deploy/app_name/current/log/nginx.error.log info;
+
+    try_files $uri/index.html $uri @app;
+    
+    location @app {
+      proxy_pass        http://puma_app_name_environment;
+      proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header  X-Real-IP       $remote_addr;
+      proxy_set_header  X-Forwarded-Proto https;
+      proxy_set_header  Host $http_host;
+      proxy_redirect    off;
+    }
+    
+    location /cable {
+      proxy_pass http://puma_app_name_environment;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "Upgrade";
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-Proto https;
+      proxy_redirect off;
+    }
+    
+    location = /favicon.ico {
+      log_not_found off;
+      access_log    off;
+    }
+    
+    location = /robots.txt {
+      allow         all;
+      log_not_found off;
+      access_log    off;
+    }
+    
+     location = /500.html {
+      root /home/deploy/app_name/current/public;
+    }
+
+     location ~ /\.ht {
+      deny  all;
+    }
 
     location ^~ /assets/ {
-        gzip_static on;
-        expires max;
-        add_header Cache-Control public;
+      gzip_static on;
+      expires max;
+      add_header Cache-Control public;
     }
-
-    try_files $uri/index.html $uri @puma;
-    location @puma {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Host $http_host;
-        proxy_redirect off;
-
-        proxy_pass http://puma;
-    }
-
+    
+    access_log  /var/log/nginx/master.app_name.access.log;
     error_page 500 502 503 504 /500.html;
-    client_max_body_size 10M;
+    client_max_body_size 4G;
     keepalive_timeout 10;
 }
 
@@ -258,7 +291,7 @@ server {
 ### 11. Linked nginx
 
 - `sudo rm /etc/nginx/sites-enabled/default`
-- `sudo ln -nfs /home/deploy/apps/app_name/current/config/nginx.conf /etc/nginx/sites-enabled/app_name`
+- `sudo ln -nfs /etc/nginx/sites-available/app_or_domain_name /etc/nginx/sites-enabled/app_or_domain_name`
 - `sudo service nginx restart`
 
 ### 12. Deploy
